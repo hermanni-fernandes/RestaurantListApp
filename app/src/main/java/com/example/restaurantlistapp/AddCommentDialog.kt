@@ -13,17 +13,18 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun AddCommentDialog(
-    onSubmit: (Float, String) -> Unit,
-    onDismiss: () -> Unit
+    onSubmit: (Float, String) -> Unit, // Funktio, joka kutsutaan kun kommentti lähetetään
+    onDismiss: () -> Unit              // Funktio, joka kutsutaan kun dialogi suljetaan
 ) {
+    // Muistetaan tähditys ja tekstikentän sisältö
     var rating by remember { mutableStateOf(0f) }
     var commentText by remember { mutableStateOf(TextFieldValue("")) }
 
     AlertDialog(
-        onDismissRequest = onDismiss,
+        onDismissRequest = onDismiss, // Sulje dialogi kun taustaa painetaan
         confirmButton = {
             TextButton(onClick = {
-                onSubmit(rating, commentText.text)
+                onSubmit(rating, commentText.text) // Lähetä arvosana ja teksti
             }) {
                 Text("Lähetä")
             }
@@ -38,6 +39,7 @@ fun AddCommentDialog(
             Column {
                 Text("Arviosi:")
                 Row {
+                    // Tähtien näyttö ja klikkaus
                     for (i in 1..5) {
                         Icon(
                             imageVector = Icons.Filled.Star,
@@ -46,7 +48,7 @@ fun AddCommentDialog(
                             modifier = Modifier
                                 .padding(4.dp)
                                 .size(32.dp)
-                                .clickable { rating = i.toFloat() }
+                                .clickable { rating = i.toFloat() } // Aseta arvosana
                         )
                     }
                 }
@@ -54,7 +56,7 @@ fun AddCommentDialog(
                 Text("Kommenttisi:")
                 TextField(
                     value = commentText,
-                    onValueChange = { commentText = it },
+                    onValueChange = { commentText = it }, // Päivitä tekstikentän sisältö
                     modifier = Modifier.fillMaxWidth()
                 )
             }
