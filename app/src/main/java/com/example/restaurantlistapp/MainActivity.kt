@@ -4,6 +4,8 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -13,15 +15,44 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.example.restaurantlistapp.ui.theme.RestaurantListAppTheme
 
+// Ravintoladata-luokka
+data class Restaurant(
+    val name: String,
+    val rating: Double,
+    val reviewCount: Int,
+    val type: String,
+    val priceRange: String,
+    val address: String
+)
+
+// Mallidataa - 2 ravintolaa
+val sampleRestaurants = listOf(
+    Restaurant(
+        name = "Mahtava ravintola",
+        rating = 4.8,
+        reviewCount = 3,
+        type = "Italialainen",
+        priceRange = "$$",
+        address = "Jokivylä 11 C, 96300 Rovaniemi"
+    ),
+    Restaurant(
+        name = "Kova",
+        rating = 3.2,
+        reviewCount = 14,
+        type = "Sushi",
+        priceRange = "$$$",
+        address = "Sushikatu 5, 00100 Helsinki"
+    )
+)
+
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        // Käynnistetään Compose-käyttöliittymä
         setContent {
             RestaurantListAppTheme {
                 Surface {
-                    // Näytetään yksi ravintolakortti
-                    RestaurantCard()
+                    // Näytetään lista ravintoloista
+                    RestaurantList(restaurants = sampleRestaurants)
                 }
             }
         }
@@ -29,36 +60,40 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun RestaurantCard() {
-    // Sarake (Column) sijoittaa elementit pystysuunnassa
+fun RestaurantList(restaurants: List<Restaurant>) {
+    // Scrollattava lista (LazyColumn)
+    LazyColumn(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp)
+    ) {
+        // Jokaiselle ravintolalle kutsutaan korttifunktio
+        items(restaurants) { restaurant ->
+            RestaurantCard(restaurant)
+            Spacer(modifier = Modifier.height(16.dp))
+        }
+    }
+}
+
+@Composable
+fun RestaurantCard(restaurant: Restaurant) {
+    // Näytetään yksittäisen ravintolan tiedot
     Column(
         modifier = Modifier
-            .fillMaxWidth()         // vie koko vaakasuoran tilan
-            .padding(16.dp)         // ulkoinen marginaali
+            .fillMaxWidth()
     ) {
-        // Ravintolan nimi, typografia määritetty
+        // Nimi otsikkona
         Text(
-            text = "Mahtava ravintola",
+            text = restaurant.name,
             style = MaterialTheme.typography.titleMedium,
-            maxLines = 1, // Näytetään vain yksi rivi
-            overflow = TextOverflow.Ellipsis // ... jos nimi on liian pitkä
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis // ... jos nimi liian pitkä
         )
-
-        Spacer(modifier = Modifier.height(4.dp)) // Väli tilan ja seuraavan tekstin välillä
-
-        // Arvosana numeroarvona
-        Text(text = "Arvosana: 4.8")
-
-        // Arvioiden lukumäärä
-        Text(text = "Arviointeja: 3")
-
-        // Ravintolan tyyppi
-        Text(text = "Tyyppi: Italialainen")
-
-        // Hintaluokka
-        Text(text = "Hintaluokka: $$")
-
-        // Osoite
-        Text(text = "Osoite: Jokivylä 11 C, 96300 Rovaniemi")
+        Spacer(modifier = Modifier.height(4.dp))
+        Text(text = "Arvosana: ${restaurant.rating}")
+        Text(text = "Arviointeja: ${restaurant.reviewCount}")
+        Text(text = "Tyyppi: ${restaurant.type}")
+        Text(text = "Hintaluokka: ${restaurant.priceRange}")
+        Text(text = "Osoite: ${restaurant.address}")
     }
 }
