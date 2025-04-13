@@ -2,33 +2,39 @@
 
 package com.example.restaurantlistapp
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import java.text.SimpleDateFormat
+import java.util.*
+import com.example.restaurantlistapp.Restaurant
+import com.example.restaurantlistapp.CommentCard
+import com.example.restaurantlistapp.AddCommentDialog
+import com.example.restaurantlistapp.RestaurantCard
+
 
 @Composable
 fun CommentScreen(
-    restaurantName: String,
+    restaurant: Restaurant, // Koko ravintolaobjekti
     navController: NavHostController,
-    viewModel: RestaurantViewModel = viewModel() // Jaettu ViewModel käytössä
+    viewModel: RestaurantViewModel = viewModel()
 ) {
+    var showDialog by remember { mutableStateOf(false) }
+
     Scaffold(
         topBar = {
-            // Yläpalkki ravintolan nimellä ja takaisin-nuolella
             TopAppBar(
-                title = { Text(restaurantName) },
+                title = { Text(text = restaurant.name) }, // Näytetään ravintolan nimi yläpalkissa
                 navigationIcon = {
                     IconButton(onClick = { navController.navigateUp() }) {
                         Icon(
@@ -40,10 +46,8 @@ fun CommentScreen(
             )
         },
         floatingActionButton = {
-            // Plus-painike kommentin lisäämistä varten
-            FloatingActionButton(onClick = {
-                // Seuraavassa vaiheessa lisätään kommentin lisäysdialogi
-            }) {
+            // Plus-painike kommentin lisäykseen
+            FloatingActionButton(onClick = { showDialog = true }) {
                 Text("+")
             }
         }
@@ -53,73 +57,36 @@ fun CommentScreen(
                 .padding(padding)
                 .fillMaxSize()
         ) {
-            // Kommenttilistan otsikko
+            // Ravintolakortti ylhäällä (ei klikattava)
+            RestaurantCard(restaurant = restaurant, onClick = null)
+
+            // Kommenttien otsikko
             Text(
-                text = "Kommentit: $restaurantName",
+                text = "Kommentit: ${restaurant.name}",
                 style = MaterialTheme.typography.titleMedium,
                 modifier = Modifier.padding(16.dp)
             )
 
-            // Kommentit listana (LazyColumn)
+            // Lista kommenteista
             LazyColumn(modifier = Modifier.fillMaxSize()) {
                 items(viewModel.comments) { comment ->
-                    // Yksittäinen kommenttikortti + poistonappi
-                    CommentCard(comment = comment, onDelete = {
-                        viewModel.deleteComment(comment)
-                    })
+                    CommentCard(
+                        comment = comment,
+                        onDelete = { viewModel.deleteComment(comment) }
+                    )
                 }
             }
         }
-    }
-}
 
-@Composable
-fun CommentCard(comment: Comment, onDelete: () -> Unit) {
-    Card(
-        modifier = Modifier
-            .padding(8.dp)
-            .fillMaxWidth()
-    ) {
-        Column(modifier = Modifier.padding(8.dp)) {
-
-            // Tähtiarvio ja arvosana
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                repeat(5) { i ->
-                    Icon(
-                        imageVector = Icons.Filled.Star,
-                        contentDescription = null,
-                        tint = if (i < comment.rating.toInt()) Color(0xFFFFC107) else Color.LightGray,
-                        modifier = Modifier.size(20.dp)
-                    )
-                }
-
-                Spacer(modifier = Modifier.width(8.dp))
-
-                Text(text = comment.rating.toString())
-
-                Spacer(modifier = Modifier.weight(1f))
-
-                // Roskakori-nappi kommentin poistoon
-                IconButton(onClick = onDelete) {
-                    Icon(
-                        imageVector = Icons.Filled.Delete,
-                        contentDescription = "Poista kommentti"
-                    )
-                }
-            }
-
-            // Kommentin sisältö (jos on tekstiä)
-            if (comment.text.isNotBlank()) {
-                Text(comment.text)
-            }
-
-            Spacer(modifier = Modifier.height(4.dp))
-
-            // Päivämäärä harmaalla tyylillä
-            Text(
-                "Päiväys: ${comment.date}",
-                style = MaterialTheme.typography.bodySmall,
-                color = Color.Gray
+        // Kommentin lisäysdialogi
+        if (showDialog) {
+            AddCommentDialog(
+                onSubmit = { rating, text ->
+                    val date = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(Date())
+                    viewModel.addComment(Comment(rating = rating, text = text, date = date))
+                    showDialog = false
+                },
+                onDismiss = { showDialog = false }
             )
         }
     }
