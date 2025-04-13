@@ -1,3 +1,5 @@
+@file:OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
+
 package com.example.restaurantlistapp
 
 import android.os.Bundle
@@ -6,9 +8,7 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
@@ -50,44 +50,49 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             RestaurantListAppTheme {
-                Surface {
-                    // Näytetään lista ravintoloista
-                    RestaurantList(restaurants = sampleRestaurants)
-                }
+                RestaurantListScreen(sampleRestaurants)
             }
         }
     }
 }
 
 @Composable
-fun RestaurantList(restaurants: List<Restaurant>) {
-    // Scrollattava lista (LazyColumn)
-    LazyColumn(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
-    ) {
-        // Jokaiselle ravintolalle kutsutaan korttifunktio
-        items(restaurants) { restaurant ->
-            RestaurantCard(restaurant)
-            Spacer(modifier = Modifier.height(16.dp))
+fun RestaurantListScreen(restaurants: List<Restaurant>) {
+    // Scaffold luo rakenteen, johon voidaan lisätä yläpalkki + sisältö
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Restaurants") }
+            )
+        }
+    ) { padding ->
+        // LazyColumn sisällölle, padding topBarin alta
+        LazyColumn(
+            modifier = Modifier
+                .padding(padding)
+                .fillMaxSize()
+                .padding(16.dp)
+        ) {
+            items(restaurants) { restaurant ->
+                RestaurantCard(restaurant)
+                Spacer(modifier = Modifier.height(16.dp))
+            }
         }
     }
 }
 
 @Composable
 fun RestaurantCard(restaurant: Restaurant) {
-    // Näytetään yksittäisen ravintolan tiedot
+    // Yksittäinen ravintolakortti
     Column(
         modifier = Modifier
             .fillMaxWidth()
     ) {
-        // Nimi otsikkona
         Text(
             text = restaurant.name,
             style = MaterialTheme.typography.titleMedium,
             maxLines = 1,
-            overflow = TextOverflow.Ellipsis // ... jos nimi liian pitkä
+            overflow = TextOverflow.Ellipsis // jos nimi liian pitkä
         )
         Spacer(modifier = Modifier.height(4.dp))
         Text(text = "Arvosana: ${restaurant.rating}")
