@@ -16,11 +16,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 
-// Kortti, joka näyttää yhden ravintolan tiedot
+// Kortti, joka näyttää ravintolan tiedot
 @Composable
 fun RestaurantCard(
     restaurant: Restaurant,
-    onClick: (() -> Unit)? = null // Klikkausvalinnainen parametri
+    onClick: (() -> Unit)? = null
 ) {
     Card(
         modifier = Modifier
@@ -28,10 +28,11 @@ fun RestaurantCard(
             .fillMaxWidth()
             .then(
                 if (onClick != null) Modifier.clickable { onClick() } else Modifier
-            ), // Klikattava vain jos onClick määritelty
+            ),
         elevation = CardDefaults.cardElevation(4.dp)
     ) {
         Row(modifier = Modifier.padding(8.dp)) {
+
             // Ravintolan kuva
             Image(
                 painter = painterResource(R.drawable.burger),
@@ -43,35 +44,28 @@ fun RestaurantCard(
             Spacer(modifier = Modifier.width(8.dp))
 
             Column(modifier = Modifier.weight(1f)) {
-                // Ravintolan nimi
+
+                // Nimi
                 Text(
                     text = restaurant.name,
                     style = MaterialTheme.typography.titleMedium,
                     maxLines = 1,
-                    overflow = TextOverflow.Ellipsis // Estää tekstin venymisen
+                    overflow = TextOverflow.Ellipsis
                 )
 
                 // Tähtiarvio ja arvioiden määrä
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    repeat(5) { index ->
-                        Icon(
-                            imageVector = Icons.Filled.Star,
-                            contentDescription = null,
-                            tint = if (index < restaurant.rating.toInt()) Color(0xFFFFC107) else Color.LightGray,
-                            modifier = Modifier.size(16.dp)
-                        )
-                    }
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text("${restaurant.rating} (${restaurant.reviewCount})")
-                }
+                RatingStars(
+                    rating = restaurant.rating,
+                    reviewCount = restaurant.reviewCount
+                )
 
-                // Ravintolan tyyppi ja hintaluokka
+                // Tyyppi ja hintaluokka
                 Text("${restaurant.type} • ${restaurant.priceRange}")
 
                 // Osoite
                 Text(restaurant.address)
 
-                // Avoinna/sulkeutumassa -teksti värillä
+                // Avoinna / sulkeutumassa -teksti
                 Text(
                     text = if (restaurant.isOpen) "Open" else "Closing soon",
                     color = if (restaurant.isOpen) Color.Green else Color.Red,
@@ -79,5 +73,22 @@ fun RestaurantCard(
                 )
             }
         }
+    }
+}
+
+// Tähtirivi + arvioiden määrä
+@Composable
+fun RatingStars(rating: Double, reviewCount: Int) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        repeat(5) { index ->
+            Icon(
+                imageVector = Icons.Filled.Star,
+                contentDescription = null,
+                tint = if (index < rating.toInt()) Color(0xFFFFC107) else Color.LightGray,
+                modifier = Modifier.size(16.dp)
+            )
+        }
+        Spacer(modifier = Modifier.width(4.dp))
+        Text("$rating ($reviewCount)")
     }
 }
