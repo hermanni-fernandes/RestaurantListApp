@@ -3,6 +3,9 @@
 package com.example.restaurantlistapp
 
 import android.os.Bundle
+import android.widget.Toast
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.foundation.clickable
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.*
@@ -83,16 +86,21 @@ fun RestaurantListScreen(restaurants: List<Restaurant>) {
 
 @Composable
 fun RestaurantCard(restaurant: Restaurant) {
-    // Yksittäinen ravintolakortti
+    val context = LocalContext.current // Konteksti Toastia varten
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
+            .clickable {
+                // Näytetään Toast, kun korttia klikataan
+                Toast.makeText(context, "Clicked: ${restaurant.name}", Toast.LENGTH_SHORT).show()
+            }
     ) {
         Text(
             text = restaurant.name,
             style = MaterialTheme.typography.titleMedium,
             maxLines = 1,
-            overflow = TextOverflow.Ellipsis // jos nimi liian pitkä
+            overflow = TextOverflow.Ellipsis
         )
         Spacer(modifier = Modifier.height(4.dp))
         Text(text = "Arvosana: ${restaurant.rating}")
