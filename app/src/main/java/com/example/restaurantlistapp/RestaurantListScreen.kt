@@ -11,7 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 
-// Esimerkkidata: kaksi ravintolaa
+// Esimerkkiravintolat
 val sampleRestaurants = listOf(
     Restaurant(
         name = "Mahtava ravintola",
@@ -40,17 +40,30 @@ fun RestaurantListScreen(navController: NavHostController) {
             TopAppBar(title = { Text("Ravintolat") }) // Sovelluksen yläpalkki
         }
     ) { padding ->
-        // Näytetään ravintolalista LazyColumnissa
-        LazyColumn(modifier = Modifier.padding(padding)) {
-            items(sampleRestaurants) { restaurant ->
-                RestaurantCard(
-                    restaurant = restaurant,
-                    onClick = {
-                        // Navigoi kommenttisivulle ravintolan nimellä
-                        navController.navigate("comment/${restaurant.name}")
-                    }
-                )
-            }
+        // Näytetään lista ravintoloista
+        RestaurantList(
+            restaurants = sampleRestaurants,
+            onItemClick = { restaurant ->
+                navController.navigate("comment/${restaurant.name}")
+            },
+            modifier = Modifier.padding(padding)
+        )
+    }
+}
+
+// Ravintolalista LazyColumnissa
+@Composable
+fun RestaurantList(
+    restaurants: List<Restaurant>,
+    onItemClick: (Restaurant) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    LazyColumn(modifier = modifier.fillMaxSize()) {
+        items(restaurants) { restaurant ->
+            RestaurantCard(
+                restaurant = restaurant,
+                onClick = { onItemClick(restaurant) }
+            )
         }
     }
 }
