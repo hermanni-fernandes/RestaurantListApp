@@ -13,18 +13,17 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun AddCommentDialog(
-    onSubmit: (Float, String) -> Unit, // Funktio, joka kutsutaan kun kommentti lähetetään
-    onDismiss: () -> Unit              // Funktio, joka kutsutaan kun dialogi suljetaan
+    onSubmit: (Float, String) -> Unit,
+    onDismiss: () -> Unit
 ) {
-    // Muistetaan tähditys ja tekstikentän sisältö
     var rating by remember { mutableStateOf(0f) }
     var commentText by remember { mutableStateOf(TextFieldValue("")) }
 
     AlertDialog(
-        onDismissRequest = onDismiss, // Sulje dialogi kun taustaa painetaan
+        onDismissRequest = onDismiss,
         confirmButton = {
             TextButton(onClick = {
-                onSubmit(rating, commentText.text) // Lähetä arvosana ja teksti
+                onSubmit(rating, commentText.text)
             }) {
                 Text("Lähetä")
             }
@@ -37,29 +36,37 @@ fun AddCommentDialog(
         title = { Text("Uusi kommentti") },
         text = {
             Column {
-                Text("Arviosi:")
-                Row {
-                    // Tähtien näyttö ja klikkaus
-                    for (i in 1..5) {
-                        Icon(
-                            imageVector = Icons.Filled.Star,
-                            contentDescription = null,
-                            tint = if (i <= rating) Color(0xFFFFC107) else Color.LightGray,
-                            modifier = Modifier
-                                .padding(4.dp)
-                                .size(32.dp)
-                                .clickable { rating = i.toFloat() } // Aseta arvosana
-                        )
-                    }
-                }
+                // Tähtiarvion syöte
+                StarRatingInput(rating = rating) { rating = it }
+
                 Spacer(modifier = Modifier.height(8.dp))
+
                 Text("Kommenttisi:")
                 TextField(
                     value = commentText,
-                    onValueChange = { commentText = it }, // Päivitä tekstikentän sisältö
+                    onValueChange = { commentText = it },
                     modifier = Modifier.fillMaxWidth()
                 )
             }
         }
     )
+}
+
+// Tähtisyöte komponentti (valittavissa 1–5 tähteä)
+@Composable
+fun StarRatingInput(rating: Float, onRatingChange: (Float) -> Unit) {
+    Text("Arviosi:")
+    Row {
+        for (i in 1..5) {
+            Icon(
+                imageVector = Icons.Filled.Star,
+                contentDescription = null,
+                tint = if (i <= rating) Color(0xFFFFC107) else Color.LightGray,
+                modifier = Modifier
+                    .padding(4.dp)
+                    .size(32.dp)
+                    .clickable { onRatingChange(i.toFloat()) }
+            )
+        }
+    }
 }
