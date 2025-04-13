@@ -1,9 +1,15 @@
-@file:OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
+@file:OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class) // Salli Material3:n kokeelliset ominaisuudet
 
 package com.example.restaurantlistapp
 
 import android.os.Bundle
 import android.widget.Toast
+import androidx.navigation.NavType
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
@@ -24,8 +30,10 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.navigation.compose.*
 import com.example.restaurantlistapp.ui.theme.RestaurantListAppTheme
 
+// Ravintolatietojen tietoluokka
 data class Restaurant(
     val name: String,
     val rating: Double,
@@ -36,6 +44,7 @@ data class Restaurant(
     val isOpen: Boolean
 )
 
+// Mallidataa näytettäväksi listalla
 val sampleRestaurants = listOf(
     Restaurant(
         name = "Mahtava ravintola",
@@ -60,50 +69,76 @@ val sampleRestaurants = listOf(
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // Käynnistetään Compose UI
         setContent {
             RestaurantListAppTheme {
-                RestaurantListScreen()
+                val navController = rememberNavController()
+
+                // NavHost hallitsee siirtymiä näkymien välillä
+                NavHost(
+                    navController = navController,
+                    startDestination = "restaurantList"
+                ) {
+                    // Ravintolalistan näkymä
+                    composable("restaurantList") {
+                        RestaurantListScreen(navController)
+                    }
+
+                    // Kommenttisivu, parametrina ravintolan nimi
+                    composable(
+                        route = "comments/{restaurantName}",
+                        arguments = listOf(navArgument("restaurantName") {
+                            type = NavType.StringType
+                        })
+                    ) { backStackEntry ->
+                        val name = backStackEntry.arguments?.getString("restaurantName") ?: ""
+                        CommentScreen(restaurantName = name, navController = navController)
+                    }
+                }
             }
         }
     }
 }
 
 @Composable
-fun RestaurantListScreen() {
+fun RestaurantListScreen(navController: NavHostController) {
     Scaffold(
         topBar = {
+            // Näytetään yläpalkki sovelluksen otsikolla
             TopAppBar(
                 title = { Text("Restaurants") }
             )
         }
     ) { padding ->
+        // Listaus kaikista ravintoloista LazyColumnissa
         LazyColumn(
             modifier = Modifier
                 .padding(padding)
                 .fillMaxSize()
         ) {
+            // Jokaiselle ravintolalle oma kortti
             items(sampleRestaurants) { restaurant ->
-                RestaurantCard(restaurant)
+                RestaurantCard(restaurant) {
+                    // Navigoi kommenttinäkymään ravintolan nimeä käyttäen
+                    navController.navigate("comments/${restaurant.name}")
+                }
             }
         }
     }
 }
 
 @Composable
-fun RestaurantCard(restaurant: Restaurant) {
-    val context = LocalContext.current
-
+fun RestaurantCard(restaurant: Restaurant, onClick: () -> Unit) {
     Card(
         modifier = Modifier
             .padding(8.dp)
             .fillMaxWidth()
-            .clickable {
-                Toast.makeText(context, "Clicked: ${restaurant.name}", Toast.LENGTH_SHORT).show()
-            },
+            .clickable { onClick() }, // Koko kortti on klikattavissa
         elevation = CardDefaults.cardElevation(4.dp)
     ) {
         Row(modifier = Modifier.padding(8.dp)) {
-            // Kuvan näyttö resurssista (burger.png)
+            // Hampurilaiskuva vasemmalla
             Image(
                 painter = painterResource(R.drawable.burger),
                 contentDescription = null,
@@ -114,15 +149,15 @@ fun RestaurantCard(restaurant: Restaurant) {
             Spacer(modifier = Modifier.width(8.dp))
 
             Column(modifier = Modifier.weight(1f)) {
-                // Nimi otsikkona
+                // Ravintolan nimi otsikkotyylillä
                 Text(
                     text = restaurant.name,
                     style = MaterialTheme.typography.titleMedium,
                     maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
+                    overflow = TextOverflow.Ellipsis // Jos nimi on liian pitkä
                 )
 
-                // Tähtirivistö ja arvosana
+                // Tähtiarvio + lukumäärä
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     repeat(5) { index ->
                         Icon(
@@ -136,13 +171,13 @@ fun RestaurantCard(restaurant: Restaurant) {
                     Text("${restaurant.rating} (${restaurant.reviewCount})")
                 }
 
-                // Tyyppi ja hintaluokka
+                // Ravintolan tyyppi ja hintaluokka
                 Text("${restaurant.type} • ${restaurant.priceRange}")
 
                 // Osoite
                 Text(restaurant.address)
 
-                // Aukiolo / Sulkeutumassa
+                // Avoinna / Sulkeutumassa
                 Text(
                     text = if (restaurant.isOpen) "Open" else "Closing soon",
                     color = if (restaurant.isOpen) Color.Green else Color.Red,
