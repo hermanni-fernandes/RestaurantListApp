@@ -13,7 +13,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            // Asetetaan sovelluksen teema ja navigaatio
+            // Asetetaan sovelluksen teema ja käynnistetään navigaatio
             RestaurantListAppTheme {
                 AppNavigation()
             }
@@ -25,23 +25,26 @@ class MainActivity : ComponentActivity() {
 fun AppNavigation() {
     val navController = rememberNavController()
 
+    // Navigaatiorakenne (NavHost)
     NavHost(
         navController = navController,
         startDestination = "restaurantList" // Aloitusnäkymä
     ) {
+        // Reitti ravintolalistaan
         composable("restaurantList") {
-            // Näytetään ravintolalista
             RestaurantListScreen(navController)
         }
 
-        // Kommenttinäkymä ravintolan nimellä
+        // Reitti kommenttinäkymään, parametrina ravintolan nimi
         composable(
             route = "comment/{restaurantName}",
             arguments = listOf(navArgument("restaurantName") { type = NavType.StringType })
         ) { backStackEntry ->
             val name = backStackEntry.arguments?.getString("restaurantName")
+            // Etsitään ravintola nimen perusteella
             val restaurant = sampleRestaurants.find { it.name == name }
             if (restaurant != null) {
+                // Näytetään kommenttinäkymä valitulle ravintolalle
                 CommentScreen(restaurant = restaurant, navController = navController)
             }
         }
