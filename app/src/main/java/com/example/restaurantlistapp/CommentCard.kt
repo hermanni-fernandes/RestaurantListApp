@@ -16,9 +16,11 @@ fun CommentCard(comment: Comment, onDelete: () -> Unit) {
     Card(
         modifier = Modifier
             .padding(8.dp)
-            .fillMaxWidth()
+            .fillMaxWidth() // Kortti täyttää koko rivin
     ) {
         Column(modifier = Modifier.padding(8.dp)) {
+
+            // Tähtiarvio + poista-painike
             Row(verticalAlignment = Alignment.CenterVertically) {
                 repeat(5) { i ->
                     Icon(
@@ -29,8 +31,9 @@ fun CommentCard(comment: Comment, onDelete: () -> Unit) {
                     )
                 }
                 Spacer(modifier = Modifier.width(8.dp))
-                Text(text = comment.rating.toString())
-                Spacer(modifier = Modifier.weight(1f))
+                Text(text = comment.rating.toString()) // Näytä arvosana numerona
+
+                Spacer(modifier = Modifier.weight(1f)) // Vie painike oikeaan reunaan
                 IconButton(onClick = onDelete) {
                     Icon(
                         imageVector = Icons.Filled.Delete,
@@ -39,12 +42,14 @@ fun CommentCard(comment: Comment, onDelete: () -> Unit) {
                 }
             }
 
+            // Näytä kommentin teksti, jos ei ole tyhjä
             if (comment.text.isNotBlank()) {
                 Text(comment.text)
             }
 
             Spacer(modifier = Modifier.height(4.dp))
 
+            // Näytä päivämäärä
             Text(
                 "Päiväys: ${comment.date}",
                 style = MaterialTheme.typography.bodySmall,
