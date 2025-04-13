@@ -4,47 +4,56 @@ package com.example.restaurantlistapp
 
 import android.os.Bundle
 import android.widget.Toast
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.foundation.clickable
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.example.restaurantlistapp.ui.theme.RestaurantListAppTheme
 
-// Ravintoladata-luokka
 data class Restaurant(
     val name: String,
     val rating: Double,
     val reviewCount: Int,
     val type: String,
     val priceRange: String,
-    val address: String
+    val address: String,
+    val isOpen: Boolean
 )
 
-// Mallidataa - 2 ravintolaa
 val sampleRestaurants = listOf(
     Restaurant(
         name = "Mahtava ravintola",
         rating = 4.8,
         reviewCount = 3,
-        type = "Italialainen",
+        type = "Italian",
         priceRange = "$$",
-        address = "Jokivylä 11 C, 96300 Rovaniemi"
+        address = "Jokivylä 11 C, 96300 ROVANIEMI",
+        isOpen = true
     ),
     Restaurant(
         name = "Kova",
-        rating = 3.2,
-        reviewCount = 14,
-        type = "Sushi",
-        priceRange = "$$$",
-        address = "Sushikatu 5, 00100 Helsinki"
+        rating = 0.0,
+        reviewCount = 0,
+        type = "Suomalaista grillimättöä",
+        priceRange = "$",
+        address = "Grillikyljenkatu 5, 96100 ROVANIEMI",
+        isOpen = false
     )
 )
 
@@ -53,15 +62,14 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             RestaurantListAppTheme {
-                RestaurantListScreen(sampleRestaurants)
+                RestaurantListScreen()
             }
         }
     }
 }
 
 @Composable
-fun RestaurantListScreen(restaurants: List<Restaurant>) {
-    // Scaffold luo rakenteen, johon voidaan lisätä yläpalkki + sisältö
+fun RestaurantListScreen() {
     Scaffold(
         topBar = {
             TopAppBar(
@@ -69,16 +77,13 @@ fun RestaurantListScreen(restaurants: List<Restaurant>) {
             )
         }
     ) { padding ->
-        // LazyColumn sisällölle, padding topBarin alta
         LazyColumn(
             modifier = Modifier
                 .padding(padding)
                 .fillMaxSize()
-                .padding(16.dp)
         ) {
-            items(restaurants) { restaurant ->
+            items(sampleRestaurants) { restaurant ->
                 RestaurantCard(restaurant)
-                Spacer(modifier = Modifier.height(16.dp))
             }
         }
     }
@@ -86,27 +91,64 @@ fun RestaurantListScreen(restaurants: List<Restaurant>) {
 
 @Composable
 fun RestaurantCard(restaurant: Restaurant) {
-    val context = LocalContext.current // Konteksti Toastia varten
+    val context = LocalContext.current
 
-    Column(
+    Card(
         modifier = Modifier
+            .padding(8.dp)
             .fillMaxWidth()
             .clickable {
-                // Näytetään Toast, kun korttia klikataan
                 Toast.makeText(context, "Clicked: ${restaurant.name}", Toast.LENGTH_SHORT).show()
-            }
+            },
+        elevation = CardDefaults.cardElevation(4.dp)
     ) {
-        Text(
-            text = restaurant.name,
-            style = MaterialTheme.typography.titleMedium,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis
-        )
-        Spacer(modifier = Modifier.height(4.dp))
-        Text(text = "Arvosana: ${restaurant.rating}")
-        Text(text = "Arviointeja: ${restaurant.reviewCount}")
-        Text(text = "Tyyppi: ${restaurant.type}")
-        Text(text = "Hintaluokka: ${restaurant.priceRange}")
-        Text(text = "Osoite: ${restaurant.address}")
+        Row(modifier = Modifier.padding(8.dp)) {
+            // Kuvan näyttö resurssista (burger.png)
+            Image(
+                painter = painterResource(R.drawable.burger),
+                contentDescription = null,
+                modifier = Modifier.size(100.dp),
+                contentScale = ContentScale.Crop
+            )
+
+            Spacer(modifier = Modifier.width(8.dp))
+
+            Column(modifier = Modifier.weight(1f)) {
+                // Nimi otsikkona
+                Text(
+                    text = restaurant.name,
+                    style = MaterialTheme.typography.titleMedium,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+
+                // Tähtirivistö ja arvosana
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    repeat(5) { index ->
+                        Icon(
+                            imageVector = Icons.Filled.Star,
+                            contentDescription = null,
+                            tint = if (index < restaurant.rating.toInt()) Color(0xFFFFC107) else Color.LightGray,
+                            modifier = Modifier.size(16.dp)
+                        )
+                    }
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text("${restaurant.rating} (${restaurant.reviewCount})")
+                }
+
+                // Tyyppi ja hintaluokka
+                Text("${restaurant.type} • ${restaurant.priceRange}")
+
+                // Osoite
+                Text(restaurant.address)
+
+                // Aukiolo / Sulkeutumassa
+                Text(
+                    text = if (restaurant.isOpen) "Open" else "Closing soon",
+                    color = if (restaurant.isOpen) Color.Green else Color.Red,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+        }
     }
 }
