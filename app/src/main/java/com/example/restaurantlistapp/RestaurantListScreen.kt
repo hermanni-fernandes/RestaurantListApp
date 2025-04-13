@@ -2,7 +2,6 @@
 
 package com.example.restaurantlistapp
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -12,7 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 
-// Näytettävät ravintolat
+// Esimerkkidata: kaksi ravintolaa
 val sampleRestaurants = listOf(
     Restaurant(
         name = "Mahtava ravintola",
@@ -41,7 +40,7 @@ fun RestaurantListScreen(navController: NavHostController) {
             TopAppBar(title = { Text("Ravintolat") }) // Sovelluksen yläpalkki
         }
     ) { padding ->
-        // Lista ravintoloista
+        // Näytetään ravintolalista LazyColumnissa
         LazyColumn(modifier = Modifier.padding(padding)) {
             items(sampleRestaurants) { restaurant ->
                 RestaurantCard(
