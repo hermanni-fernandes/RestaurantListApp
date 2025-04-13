@@ -16,11 +16,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 
-// Kortti, joka näyttää ravintolan tiedot
+// Kortti, joka näyttää yhden ravintolan tiedot
 @Composable
 fun RestaurantCard(
     restaurant: Restaurant,
-    onClick: (() -> Unit)? = null
+    onClick: (() -> Unit)? = null // Klikkausvalinnainen parametri
 ) {
     Card(
         modifier = Modifier
@@ -28,10 +28,11 @@ fun RestaurantCard(
             .fillMaxWidth()
             .then(
                 if (onClick != null) Modifier.clickable { onClick() } else Modifier
-            ),
+            ), // Klikattava vain jos onClick määritelty
         elevation = CardDefaults.cardElevation(4.dp)
     ) {
         Row(modifier = Modifier.padding(8.dp)) {
+            // Ravintolan kuva
             Image(
                 painter = painterResource(R.drawable.burger),
                 contentDescription = null,
@@ -42,13 +43,15 @@ fun RestaurantCard(
             Spacer(modifier = Modifier.width(8.dp))
 
             Column(modifier = Modifier.weight(1f)) {
+                // Ravintolan nimi
                 Text(
                     text = restaurant.name,
                     style = MaterialTheme.typography.titleMedium,
                     maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
+                    overflow = TextOverflow.Ellipsis // Estää tekstin venymisen
                 )
 
+                // Tähtiarvio ja arvioiden määrä
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     repeat(5) { index ->
                         Icon(
@@ -62,8 +65,13 @@ fun RestaurantCard(
                     Text("${restaurant.rating} (${restaurant.reviewCount})")
                 }
 
+                // Ravintolan tyyppi ja hintaluokka
                 Text("${restaurant.type} • ${restaurant.priceRange}")
+
+                // Osoite
                 Text(restaurant.address)
+
+                // Avoinna/sulkeutumassa -teksti värillä
                 Text(
                     text = if (restaurant.isOpen) "Open" else "Closing soon",
                     color = if (restaurant.isOpen) Color.Green else Color.Red,
