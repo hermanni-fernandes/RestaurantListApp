@@ -1,4 +1,4 @@
-# Ravintolasovellus
+# Ravintolasovellus (Tähän menessä Tehtävät 2, 3 ja 4)
 
 Tämä on yksinkertainen Android-sovellus, joka näyttää listan ravintoloista ja mahdollistaa asiakasarvioiden lisäämisen Jetpack Compose -kirjaston avulla.
 
