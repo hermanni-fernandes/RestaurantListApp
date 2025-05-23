@@ -1,5 +1,3 @@
-@file:OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
-
 package com.example.restaurantlistapp
 
 import androidx.compose.foundation.clickable
@@ -14,18 +12,19 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.example.restaurantlistapp.viewmodel.RestaurantViewModel
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RestaurantListScreen(
     navController: NavHostController,
-    viewModel: RestaurantViewModel = hiltViewModel()
+    viewModel: RestaurantViewModel = hiltViewModel() // 🔹 Käytetään Hiltin tarjoamaa ViewModelia
 ) {
-    val restaurants by viewModel.restaurants.collectAsState()
-    val error by viewModel.error.collectAsState()
-
-    // Haetaan ravintolat, kun näkymä aukeaa
+    // 🔹 Haetaan ravintolat vain kerran composablen käynnistyessä
     LaunchedEffect(Unit) {
         viewModel.fetchRestaurants()
     }
+
+    val restaurantList by viewModel.restaurants.collectAsState()
+    val error by viewModel.error.collectAsState()
 
     Scaffold(
         topBar = {
@@ -33,16 +32,17 @@ fun RestaurantListScreen(
         }
     ) { padding ->
         Column(modifier = Modifier.padding(padding)) {
-            if (error != null) {
+            // 🔹 Näytetään virheilmoitus, jos sellainen on
+            error?.let {
                 Text(
-                    text = error ?: "",
+                    text = it,
                     color = MaterialTheme.colorScheme.error,
                     modifier = Modifier.padding(16.dp)
                 )
             }
 
-            LazyColumn(modifier = Modifier.fillMaxSize()) {
-                items(restaurants) { restaurant ->
+            LazyColumn {
+                items(restaurantList) { restaurant ->
                     RestaurantCard(
                         restaurant = restaurant,
                         onClick = {
