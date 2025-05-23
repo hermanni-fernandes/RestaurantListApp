@@ -16,23 +16,26 @@ import com.example.restaurantlistapp.viewmodel.RestaurantViewModel
 @Composable
 fun RestaurantListScreen(
     navController: NavHostController,
-    viewModel: RestaurantViewModel = hiltViewModel() // 🔹 Käytetään Hiltin tarjoamaa ViewModelia
+    viewModel: RestaurantViewModel = hiltViewModel() // ViewModel injektoidaan Hiltin avulla
 ) {
-    // 🔹 Haetaan ravintolat vain kerran composablen käynnistyessä
+    // Haetaan ravintolat vain kerran composablen käynnistyessä
     LaunchedEffect(Unit) {
         viewModel.fetchRestaurants()
     }
 
+    // Seurataan ravintolalistan ja virheviestin tilaa
     val restaurantList by viewModel.restaurants.collectAsState()
     val error by viewModel.error.collectAsState()
 
+    // Sovelluksen perusrakenne (yläpalkki ja sisältö)
     Scaffold(
         topBar = {
-            TopAppBar(title = { Text("Ravintolat") }) // Sovelluksen yläpalkki
+            TopAppBar(title = { Text("Ravintolat") }) // Näytetään sovelluksen otsikko yläpalkissa
         }
     ) { padding ->
         Column(modifier = Modifier.padding(padding)) {
-            // 🔹 Näytetään virheilmoitus, jos sellainen on
+
+            // Jos virhe on olemassa, näytetään se punaisena tekstinä
             error?.let {
                 Text(
                     text = it,
@@ -41,11 +44,13 @@ fun RestaurantListScreen(
                 )
             }
 
+            // Näytetään ravintolat LazyColumnissa
             LazyColumn {
                 items(restaurantList) { restaurant ->
                     RestaurantCard(
                         restaurant = restaurant,
                         onClick = {
+                            // Navigoidaan kommenttinäkymään ravintolan nimen perusteella
                             navController.navigate("comment/${restaurant.name}")
                         }
                     )

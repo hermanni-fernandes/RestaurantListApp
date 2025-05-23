@@ -11,26 +11,26 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import javax.inject.Singleton
 
-// Hilt-moduuli, joka tarjoaa Retrofitin ja API-rajapinnan injektointia varten
+// Hilt-moduuli, joka tarjoaa verkkoon liittyvät riippuvuudet: Gson, Retrofit ja RestaurantApi
 @Module
 @InstallIn(SingletonComponent::class)
 object NetworkModule {
 
-    // Tarjoaa Gson-objektin
+    // Tarjoaa Gson-instanssin JSON-serialisointiin ja -deserialisointiin
     @Provides
     @Singleton
     fun provideGson(): Gson = GsonBuilder().create()
 
-    // Tarjoaa Retrofit-instanssin, joka käyttää emulaattorin localhostia (http://10.0.2.2)
+    // Tarjoaa Retrofit-instanssin, joka käyttää paikallista emulaattoripalvelinta (http://10.0.2.2)
     @Provides
     @Singleton
     fun provideRetrofit(gson: Gson): Retrofit =
         Retrofit.Builder()
-            .baseUrl("http://10.0.2.2:8000/") // Paikallinen backend Android-emulaattorille
+            .baseUrl("http://10.0.2.2:8000/") // Android-emulaattorin yhteys isäntäkoneen localhostiin
             .addConverterFactory(GsonConverterFactory.create(gson))
             .build()
 
-    // Tarjoaa RestaurantApi-rajapinnan Retrofitin avulla
+    // Tarjoaa RestaurantApi-rajapinnan, joka toteutetaan Retrofitin avulla
     @Provides
     @Singleton
     fun provideRestaurantApi(retrofit: Retrofit): RestaurantApi =

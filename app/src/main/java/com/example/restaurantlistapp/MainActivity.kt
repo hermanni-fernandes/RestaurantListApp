@@ -4,7 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect // ✅ REQUIRED IMPORT
+import androidx.compose.runtime.LaunchedEffect
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -15,10 +15,12 @@ import com.example.restaurantlistapp.ui.theme.RestaurantListAppTheme
 import com.example.restaurantlistapp.viewmodel.RestaurantViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
+// Sovelluksen pääaktiviteetti, johon injektoidaan Hilt-riippuvuudet
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        // Asetetaan sisällöksi Jetpack Compose -pohjainen teema ja navigaatio
         setContent {
             RestaurantListAppTheme {
                 AppNavigation()
@@ -27,20 +29,23 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+// Sovelluksen navigaatiokomponentti, joka määrittää eri näkymien reitit
 @Composable
 fun AppNavigation() {
     val navController = rememberNavController()
-    val viewModel: RestaurantViewModel = hiltViewModel()
+    val viewModel: RestaurantViewModel = hiltViewModel() // ViewModel injektoituna Hiltin avulla
 
-    // 🔹 Haetaan ravintoladata heti kun navigaatio käynnistyy
+    // Käynnistetään ravintolatietojen haku heti kun composable käynnistyy
     LaunchedEffect(Unit) {
         viewModel.fetchRestaurants()
     }
 
+    // Määritellään navigaatiorakenne ja näkymien reitit
     NavHost(
         navController = navController,
-        startDestination = "restaurantList"
+        startDestination = "restaurantList" // Alkunäkymä
     ) {
+        // Reitti ravintolalistalle
         composable("restaurantList") {
             RestaurantListScreen(
                 navController = navController,
@@ -48,6 +53,7 @@ fun AppNavigation() {
             )
         }
 
+        // Reitti yksittäisen ravintolan kommenttisivulle, parametrina ravintolan nimi
         composable(
             route = "comment/{restaurantName}",
             arguments = listOf(navArgument("restaurantName") { type = NavType.StringType })
