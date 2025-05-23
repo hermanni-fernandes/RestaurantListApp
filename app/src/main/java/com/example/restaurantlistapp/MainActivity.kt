@@ -4,16 +4,19 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.runtime.Composable
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavType
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import androidx.navigation.compose.*
 import com.example.restaurantlistapp.ui.theme.RestaurantListAppTheme
+import com.example.restaurantlistapp.viewmodel.RestaurantViewModel
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            // Asetetaan sovelluksen teema ja käynnistetään navigaatio
             RestaurantListAppTheme {
                 AppNavigation()
             }
@@ -24,28 +27,21 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun AppNavigation() {
     val navController = rememberNavController()
+    val viewModel: RestaurantViewModel = hiltViewModel()
 
-    // Navigaatiorakenne (NavHost)
-    NavHost(
-        navController = navController,
-        startDestination = "restaurantList" // Aloitusnäkymä
-    ) {
-        // Reitti ravintolalistaan
+    NavHost(navController = navController, startDestination = "restaurantList") {
         composable("restaurantList") {
-            RestaurantListScreen(navController)
+            RestaurantListScreen(navController = navController, viewModel = viewModel)
         }
 
-        // Reitti kommenttinäkymään, parametrina ravintolan nimi
         composable(
             route = "comment/{restaurantName}",
             arguments = listOf(navArgument("restaurantName") { type = NavType.StringType })
         ) { backStackEntry ->
-            val name = backStackEntry.arguments?.getString("restaurantName")
-            // Etsitään ravintola nimen perusteella
-            val restaurant = sampleRestaurants.find { it.name == name }
+            val restaurantName = backStackEntry.arguments?.getString("restaurantName")
+            val restaurant = viewModel.restaurants.value.find { it.name == restaurantName }
             if (restaurant != null) {
-                // Näytetään kommenttinäkymä valitulle ravintolalle
-                CommentScreen(restaurant = restaurant, navController = navController)
+                CommentScreen(restaurant = restaurant, navController = navController, viewModel = viewModel)
             }
         }
     }

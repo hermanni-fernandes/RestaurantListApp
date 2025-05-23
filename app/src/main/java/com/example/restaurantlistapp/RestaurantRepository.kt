@@ -1,6 +1,6 @@
 package com.example.restaurantlistapp.data
 
-import com.example.restaurantlistapp.model.Restaurant
+import com.example.restaurantlistapp.Restaurant
 import com.example.restaurantlistapp.network.RestaurantApi
 import javax.inject.Inject
 

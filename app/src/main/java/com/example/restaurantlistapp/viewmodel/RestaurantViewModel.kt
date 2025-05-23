@@ -2,6 +2,7 @@ package com.example.restaurantlistapp.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.restaurantlistapp.Comment
 import com.example.restaurantlistapp.Restaurant
 import com.example.restaurantlistapp.network.RestaurantApi
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -16,15 +17,19 @@ class RestaurantViewModel @Inject constructor(
     private val api: RestaurantApi
 ) : ViewModel() {
 
-    // Ravintolalistan tila: StateFlow
+    // Ravintolalistan tila
     private val _restaurants = MutableStateFlow<List<Restaurant>>(emptyList())
     val restaurants: StateFlow<List<Restaurant>> = _restaurants
 
-    // Virhetilojen hallinta (esim. verkko-ongelmat)
+    // Kommenttilista (paikallinen, ei backendistä tässä vaiheessa)
+    private val _comments = MutableStateFlow<List<Comment>>(emptyList())
+    val comments: StateFlow<List<Comment>> = _comments
+
+    // Virhetilojen hallinta
     private val _error = MutableStateFlow<String?>(null)
     val error: StateFlow<String?> = _error
 
-    // Funktio, joka hakee ravintoladataa backendista
+    // Hakee ravintolatiedot backendista
     fun fetchRestaurants() {
         viewModelScope.launch {
             try {
@@ -35,5 +40,15 @@ class RestaurantViewModel @Inject constructor(
                 _error.value = "Virhe haettaessa tietoja: ${e.localizedMessage}"
             }
         }
+    }
+
+    // Lisää kommentti listaan
+    fun addComment(comment: Comment) {
+        _comments.value = _comments.value + comment
+    }
+
+    // Poistaa kommentin listasta
+    fun deleteComment(comment: Comment) {
+        _comments.value = _comments.value - comment
     }
 }
