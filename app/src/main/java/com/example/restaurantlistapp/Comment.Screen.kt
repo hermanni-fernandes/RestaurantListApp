@@ -13,7 +13,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
 import com.example.restaurantlistapp.viewmodel.RestaurantViewModel
 import java.text.SimpleDateFormat
@@ -23,15 +22,15 @@ import java.util.*
 fun CommentScreen(
     restaurantName: String,
     navController: NavHostController,
-    viewModel: RestaurantViewModel = hiltViewModel() // 🔹 Shared ViewModel injektoituna
+    viewModel: RestaurantViewModel = hiltViewModel() // Shared ViewModel injektoituna
 ) {
     val restaurantList by viewModel.restaurants.collectAsState()
+    val commentList by viewModel.comments.collectAsState() // Collect the comments list
     val restaurant = restaurantList.find { it.name == restaurantName }
 
     var showDialog by remember { mutableStateOf(false) }
 
     if (restaurant == null) {
-        // 🔸 Näytetään viesti, jos ravintolaa ei löytynyt
         Text("Ravintolaa ei löytynyt")
         return
     }
@@ -70,7 +69,7 @@ fun CommentScreen(
             )
 
             LazyColumn(modifier = Modifier.fillMaxSize()) {
-                items(viewModel.comments) { comment ->
+                items(commentList) { comment -> // Now you're passing the collected list
                     CommentCard(
                         comment = comment,
                         onDelete = { viewModel.deleteComment(comment) }
