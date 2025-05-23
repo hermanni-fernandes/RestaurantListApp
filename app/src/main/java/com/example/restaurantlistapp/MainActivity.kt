@@ -12,7 +12,9 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.restaurantlistapp.ui.theme.RestaurantListAppTheme
 import com.example.restaurantlistapp.viewmodel.RestaurantViewModel
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -29,20 +31,32 @@ fun AppNavigation() {
     val navController = rememberNavController()
     val viewModel: RestaurantViewModel = hiltViewModel()
 
-    NavHost(navController = navController, startDestination = "restaurantList") {
+    // 🔹 Haetaan ravintoladata heti kun navigaatio käynnistyy
+    LaunchedEffect(Unit) {
+        viewModel.fetchRestaurants()
+    }
+
+    NavHost(
+        navController = navController,
+        startDestination = "restaurantList"
+    ) {
         composable("restaurantList") {
-            RestaurantListScreen(navController = navController, viewModel = viewModel)
+            RestaurantListScreen(
+                navController = navController,
+                viewModel = viewModel
+            )
         }
 
         composable(
             route = "comment/{restaurantName}",
             arguments = listOf(navArgument("restaurantName") { type = NavType.StringType })
         ) { backStackEntry ->
-            val restaurantName = backStackEntry.arguments?.getString("restaurantName")
-            val restaurant = viewModel.restaurants.value.find { it.name == restaurantName }
-            if (restaurant != null) {
-                CommentScreen(restaurant = restaurant, navController = navController, viewModel = viewModel)
-            }
+            val name = backStackEntry.arguments?.getString("restaurantName") ?: ""
+            CommentScreen(
+                restaurantName = name,
+                navController = navController,
+                viewModel = viewModel
+            )
         }
     }
 }
