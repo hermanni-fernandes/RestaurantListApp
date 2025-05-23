@@ -1,9 +1,8 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
-    alias(libs.plugins.kotlin.compose)
-    id("com.google.dagger.hilt.android") // Hilt plugin
-    kotlin("kapt") // KAPT for annotation processing
+    id("com.google.dagger.hilt.android")
+    kotlin("kapt")
 }
 
 android {
@@ -16,7 +15,6 @@ android {
         targetSdk = 35
         versionCode = 1
         versionName = "1.0"
-
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -44,12 +42,15 @@ android {
     }
 
     composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.10"
+        kotlinCompilerExtensionVersion = "1.4.6"
     }
 }
 
 dependencies {
-    // Jetpack Compose + UI
+    // Explicit fix for broken javapoet in Hilt
+    implementation("com.squareup:javapoet:1.13.0")
+
+    // Jetpack Compose
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
@@ -60,22 +61,21 @@ dependencies {
     implementation(libs.androidx.material3)
     implementation("androidx.navigation:navigation-compose:2.7.7")
 
-    // Retrofit (REST API)
+    // Retrofit
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
     implementation("com.squareup.retrofit2:converter-gson:2.9.0")
 
-    // Kotlin Coroutines
+    // Coroutines
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
 
-    // Dagger Hilt (DI)
-    implementation("com.google.dagger:hilt-android:2.48")
-    kapt("com.google.dagger:hilt-compiler:2.48")
+    // Dagger Hilt
+    implementation("com.google.dagger:hilt-android:2.45")
+    kapt("com.google.dagger:hilt-compiler:2.45")
 
-    // Hilt + Jetpack Compose navigation support
+    // Hilt + Compose navigation
     implementation("androidx.hilt:hilt-navigation-compose:1.1.0")
-    kapt("androidx.hilt:hilt-compiler:1.1.0")
 
-    // Testing
+    // Tests
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -83,4 +83,12 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+}
+configurations.configureEach {
+    resolutionStrategy.eachDependency {
+        if (requested.group == "com.squareup" && requested.name == "javapoet") {
+            useVersion("1.13.0")
+            because("Fixes Hilt AggregateDepsTask canonicalName() crash due to old javapoet")
+        }
+    }
 }
