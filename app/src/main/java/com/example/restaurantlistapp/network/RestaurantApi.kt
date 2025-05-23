@@ -1,10 +1,12 @@
 package com.example.restaurantlistapp.network
 
-import com.example.restaurantlistapp.model.RestaurantDto
+import com.example.restaurantlistapp.Restaurant
 import retrofit2.http.GET
 
-// REST API -rajapinta ravintoloiden hakemista varten
+// API-rajapinta, joka määrittää miten ravintolat haetaan REST-palvelimelta
 interface RestaurantApi {
-    @GET("restaurants")
-    suspend fun getRestaurants(): List<RestaurantDto>
+
+    // Hakee kaikki ravintolat
+    @GET("/restaurants")
+    suspend fun getRestaurants(): List<Restaurant>
 }
