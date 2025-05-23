@@ -2,7 +2,6 @@
 
 package com.example.restaurantlistapp
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -14,6 +13,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
 import com.example.restaurantlistapp.viewmodel.RestaurantViewModel
 import java.text.SimpleDateFormat
@@ -21,29 +21,38 @@ import java.util.*
 
 @Composable
 fun CommentScreen(
-    restaurant: Restaurant,
+    restaurantName: String,
     navController: NavHostController,
-    viewModel: RestaurantViewModel = hiltViewModel() // ✅ Hiltin avulla jaettu ViewModel
+    viewModel: RestaurantViewModel = hiltViewModel() // 🔹 Shared ViewModel injektoituna
 ) {
+    val restaurantList by viewModel.restaurants.collectAsState()
+    val restaurant = restaurantList.find { it.name == restaurantName }
+
     var showDialog by remember { mutableStateOf(false) }
 
-    // Kerätään kommentit StateFlow:sta
-    val comments by viewModel.comments.collectAsState()
+    if (restaurant == null) {
+        // 🔸 Näytetään viesti, jos ravintolaa ei löytynyt
+        Text("Ravintolaa ei löytynyt")
+        return
+    }
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(text = restaurant.name) }, // Näytetään ravintolan nimi
+                title = { Text(text = restaurant.name) },
                 navigationIcon = {
                     IconButton(onClick = { navController.navigateUp() }) {
-                        Icon(Icons.Filled.ArrowBack, contentDescription = "Takaisin")
+                        Icon(
+                            imageVector = Icons.Filled.ArrowBack,
+                            contentDescription = "Takaisin"
+                        )
                     }
                 }
             )
         },
         floatingActionButton = {
             FloatingActionButton(onClick = { showDialog = true }) {
-                Text("+") // Kommentin lisäysnäppäin
+                Text("+")
             }
         }
     ) { padding ->
@@ -52,7 +61,6 @@ fun CommentScreen(
                 .padding(padding)
                 .fillMaxSize()
         ) {
-            // Ravintolan tiedot
             RestaurantCard(restaurant = restaurant, onClick = null)
 
             Text(
@@ -61,9 +69,8 @@ fun CommentScreen(
                 modifier = Modifier.padding(16.dp)
             )
 
-            // Näytetään kommentit
             LazyColumn(modifier = Modifier.fillMaxSize()) {
-                items(comments) { comment ->
+                items(viewModel.comments) { comment ->
                     CommentCard(
                         comment = comment,
                         onDelete = { viewModel.deleteComment(comment) }
@@ -72,7 +79,6 @@ fun CommentScreen(
             }
         }
 
-        // Kommentin lisäysdialogi
         if (showDialog) {
             AddCommentDialog(
                 onSubmit = { rating, text ->
