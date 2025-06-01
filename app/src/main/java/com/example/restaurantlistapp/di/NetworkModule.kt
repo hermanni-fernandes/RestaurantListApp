@@ -26,7 +26,7 @@ object NetworkModule {
     @Singleton
     fun provideRetrofit(gson: Gson): Retrofit =
         Retrofit.Builder()
-            .baseUrl("http://10.0.2.2:8000/") // Android-emulaattorin yhteys isäntäkoneen localhostiin
+            .baseUrl("http://10.0.2.2:8000/api/") // Android-emulaattorin yhteys isäntäkoneen localhostiin
             .addConverterFactory(GsonConverterFactory.create(gson))
             .build()
 

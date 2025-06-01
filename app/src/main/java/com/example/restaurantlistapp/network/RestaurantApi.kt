@@ -7,6 +7,6 @@ import retrofit2.http.GET
 interface RestaurantApi {
 
     // Hakee kaikki ravintolat
-    @GET("/restaurants")
+    @GET("restaurants/ratings")
     suspend fun getRestaurants(): List<Restaurant>
 }
