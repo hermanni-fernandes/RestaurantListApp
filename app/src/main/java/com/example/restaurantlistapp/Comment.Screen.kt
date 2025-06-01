@@ -11,7 +11,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
+
 import androidx.navigation.NavHostController
 import com.example.restaurantlistapp.viewmodel.RestaurantViewModel
 import java.text.SimpleDateFormat
@@ -21,7 +21,7 @@ import java.util.*
 fun CommentScreen(
     restaurantName: String,
     navController: NavHostController,
-    viewModel: RestaurantViewModel = hiltViewModel() // Injectoitu jaetun ViewModelin instanssi
+    viewModel: RestaurantViewModel // Injectoitu jaetun ViewModelin instanssi
 ) {
     // Haetaan ravintolat ja kommentit ViewModelista StateFlow:n kautta
     val restaurantList by viewModel.restaurants.collectAsState()

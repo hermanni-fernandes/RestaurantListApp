@@ -1,8 +1,8 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
+    id("kotlin-kapt")
     id("com.google.dagger.hilt.android")
-    kotlin("kapt")
 }
 
 android {
@@ -42,13 +42,20 @@ android {
     }
 
     composeOptions {
-        kotlinCompilerExtensionVersion = "1.4.6"
+        kotlinCompilerExtensionVersion = "1.5.10"
     }
 }
 
 dependencies {
     // Explicit fix for broken javapoet in Hilt
     implementation("com.squareup:javapoet:1.13.0")
+
+    implementation("androidx.lifecycle:lifecycle-viewmodel-savedstate:2.7.0")
+    implementation("com.google.dagger:hilt-android:2.55")
+    kapt("com.google.dagger:hilt-android-compiler:2.55")
+
+    kapt("androidx.hilt:hilt-compiler:1.2.0")
+    implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
 
     // Jetpack Compose
     implementation(libs.androidx.core.ktx)
@@ -69,11 +76,11 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
 
     // Dagger Hilt
-    implementation("com.google.dagger:hilt-android:2.45")
-    kapt("com.google.dagger:hilt-compiler:2.45")
+    //implementation("com.google.dagger:hilt-android:2.45")
+    //kapt("com.google.dagger:hilt-compiler:2.45")
 
     // Hilt + Compose navigation
-    implementation("androidx.hilt:hilt-navigation-compose:1.1.0")
+    //implementation("androidx.hilt:hilt-navigation-compose:1.1.0")
 
     // Tests
     testImplementation(libs.junit)

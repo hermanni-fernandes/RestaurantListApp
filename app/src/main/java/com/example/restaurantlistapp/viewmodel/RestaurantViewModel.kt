@@ -6,16 +6,16 @@ import com.example.restaurantlistapp.Comment
 import com.example.restaurantlistapp.Restaurant
 import com.example.restaurantlistapp.network.RestaurantApi
 import dagger.hilt.android.lifecycle.HiltViewModel
+
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+
 // ViewModel, joka hakee ravintolatiedot REST-rajapinnasta
 @HiltViewModel
-class RestaurantViewModel @Inject constructor(
-    private val api: RestaurantApi
-) : ViewModel() {
+class RestaurantViewModel @Inject constructor(private val api: RestaurantApi) : ViewModel() {
 
     // Ravintolalistan tila
     private val _restaurants = MutableStateFlow<List<Restaurant>>(emptyList())
@@ -34,6 +34,7 @@ class RestaurantViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 val response = api.getRestaurants()
+
                 _restaurants.value = response
                 _error.value = null
             } catch (e: Exception) {

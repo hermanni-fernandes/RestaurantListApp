@@ -6,6 +6,8 @@ import androidx.activity.compose.setContent
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
+
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -14,6 +16,7 @@ import androidx.navigation.navArgument
 import com.example.restaurantlistapp.ui.theme.RestaurantListAppTheme
 import com.example.restaurantlistapp.viewmodel.RestaurantViewModel
 import dagger.hilt.android.AndroidEntryPoint
+
 
 // Sovelluksen pääaktiviteetti, johon injektoidaan Hilt-riippuvuudet
 @AndroidEntryPoint
@@ -33,7 +36,7 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun AppNavigation() {
     val navController = rememberNavController()
-    val viewModel: RestaurantViewModel = hiltViewModel() // ViewModel injektoituna Hiltin avulla
+    val viewModel: RestaurantViewModel  = hiltViewModel()// ViewModel injektoituna Hiltin avulla
 
     // Käynnistetään ravintolatietojen haku heti kun composable käynnistyy
     LaunchedEffect(Unit) {
